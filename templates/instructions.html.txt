@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2 style="text-align: center; margin-bottom: 25px;">?? Co to jest FALA?</h2>
+    <p style="font-size: 16px;">
+        To krótki opis sytuacji, która poruszy³a coœ w Tobie, zmieni³a. Bez lania wody.<br>
+        Moment, który wywo³a³ napiêcie, wstyd, lêk, z³oœæ.
+    </p>
+    
+    <h3 style="margin: 25px 0 15px 0;">? Jak napisaæ FALÊ?</h3>
+    <ul style="margin-left: 25px; line-height: 1.8;">
+        <li>Kilka zdañ, bez przenoœni, metafor, porównañ - pisz z polskimi znakami.</li>
+        <li>Konkretnie – nie opowieœæ, nie analiza, nie poemat, w³asnym jêzykiem.</li>
+        <li>Co siê sta³o, co poczu³aœ/poczu³eœ, jak zareagowa³aœ/zareagowa³eœ.</li>
+    </ul>
+    
+    <h3 style="margin: 25px 0 15px 0;">?? Przyk³ady:</h3>
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-style: italic;">
+        <p>– Nie potrafiê siê bawiæ bez alkoholu. Tak ju¿ by³o na studiach. Teraz zauwa¿am, ¿e jest tak za czêsto i za ³atwo i w samotnoœci</p>
+        <p style="margin: 15px 0;">– Po ka¿dej k³ótni siêgam po alkohol. Zaczê³o siê od jednej lampki, teraz pijê codziennie. K³ótnia ju¿ nie jest potrzebna</p>
+        <p>– W zesz³ym miesi¹cu zwolnili mnie z pracy. Zacz¹³em piæ, ¿eby nie czuæ siê nikim. Ale przez to o pracê jeszcze trudniej</p>
+    </div>
+</div>
+
+<div style="text-align: center; margin-top: 40px;">
+    <a href="/fala" class="btn btn-primary" style="font-size: 18px; padding: 20px 40px; text-decoration: none;">
+        Rozumiem – chcê wpisaæ FALÊ
+    </a>
+</div>
+{% endblock %}
