@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="fala-form">
+    <div class="form-group">
+        <label for="fala-text">Wprowadź FALĘ:</label>
+        <textarea id="fala-text" class="form-control" placeholder="Wpisz tutaj swoją FALĘ..."></textarea>
+    </div>
+    
+    <div class="form-group">
+        <label>Wybierz preferowaną grupę:</label>
+        <div class="legend">
+            Legenda grup: <strong>R</strong> – Relacje • <strong>P</strong> – Potrzeby psychologiczne • <strong>F</strong> – Potrzeby fizjologiczne • <strong>T</strong> – Trauma • <strong>X</strong> – Bodźce zewnętrzne
+        </div>
+        <div class="group-buttons">
+            <button type="button" class="group-btn" data-group="R">R</button>
+            <button type="button" class="group-btn" data-group="P">P</button>
+            <button type="button" class="group-btn" data-group="F">F</button>
+            <button type="button" class="group-btn" data-group="T">T</button>
+            <button type="button" class="group-btn" data-group="X">X</button>
+        </div>
+    </div>
+    
+    <div class="model-select">
+        <label for="model-select">Wybierz model AI:</label>
+        <select id="model-select" class="form-control">
+            {% for key, model in models.items() %}
+            <option value="{{ key }}">{{ model.name }}{% if model.free %} (darmowy){% endif %}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <button id="analyze-btn" class="btn btn-primary" disabled>
+            Analizuj z AI
+        </button>
+    </div>
+</div>
+
+<div id="loading" class="loading" style="display: none;">
+    <div class="spinner"></div>
+    <p>Analizuję Twoją FALĘ...</p>
+</div>
+
+<div id="result-area" style="display: none;">
+    <h3 style="margin-bottom: 20px;">Odpowiedź AI:</h3>
+    <div class="success">
+        <strong>Model:</strong> <span id="used-model"></span><br>
+        <strong>Grupa:</strong> <span id="used-group"></span>
+    </div>
+    <div id="ai-response" class="response-area"></div>
+    <div style="text-align: center; margin-top: 20px;">
+        <button id="new-analysis-btn" class="btn">Nowa analiza</button>
+    </div>
+</div>
+
+<div id="error-area" class="error" style="display: none;"></div>
+
+<script>
+let selectedGroup = '';
+
+// Obsługa przycisków grup
+document.querySelectorAll('.group-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Usuń poprzednią selekcję
+        document.querySelectorAll('.group-btn').forEach(b => b.classList.remove('selected'));
+        
+        // Zaznacz wybraną grupę
+        this.classList.add('selected');
+        selectedGroup = this.dataset.group;
+        
+        // Sprawdź czy można aktywować przycisk analizy
+        checkFormValidity();
+    });
+});
+
+// Sprawdź czy formularz jest gotowy
+function checkFormValidity() {
+    const falaText = document.getElementById('fala-text').value.trim();
+    const analyzeBtn = document.getElementById('analyze-btn');
+    
+    if (falaText.length >= 10 && selectedGroup) {
+        analyzeBtn.disabled = false;
+    } else {
+        analyzeBtn.disabled = true;
+    }
+}
+
+// Obsługa zmian w polu tekstowym
+document.getElementById('fala-text').addEventListener('input', checkFormValidity);
+
+// Obsługa przycisku analizy
+document.getElementById('analyze-btn').addEventListener('click', function() {
+    const falaText = document.getElementById('fala-text').value.trim();
+    const modelKey = document.getElementById('model-select').value;
+    
+    if (!falaText || falaText.length < 10) {
+        showError('FALA musi mieć co najmniej 10 znaków');
+        return;
+    }
+    
+    if (!selectedGroup) {
+        showError('Wybierz grupę');
+        return;
+    }
+    
+    // Ukryj formularz, pokaż loading
+    document.getElementById('fala-form').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('error-area').style.display = 'none';
+    document.getElementById('result-area').style.display = 'none';
+    
+    // Wywołaj API
+    fetch('/analyze', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            fala: falaText,
+            grupa: selectedGroup,
+            model: modelKey
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('loading').style.display = 'none';
+        
+        if (data.success) {
+            // Pokaż wynik
+            document.getElementById('used-model').textContent = data.model_used;
+            document.getElementById('used-group').textContent = data.grupa;
+            document.getElementById('ai-response').textContent = data.response;
+            document.getElementById('result-area').style.display = 'block';
+        } else {
+            showError(data.error || 'Wystąpił błąd');
+        }
+    })
+    .catch(error => {
+        document.getElementById('loading').style.display = 'none';
+        showError('Błąd połączenia: ' + error.message);
+    });
+});
+
+// Nowa analiza
+document.getElementById('new-analysis-btn').addEventListener('click', function() {
+    document.getElementById('fala-form').style.display = 'block';
+    document.getElementById('result-area').style.display = 'none';
+    document.getElementById('error-area').style.display = 'none';
+    
+    // Wyczyść formularz
+    document.getElementById('fala-text').value = '';
+    document.querySelectorAll('.group-btn').forEach(b => b.classList.remove('selected'));
+    selectedGroup = '';
+    document.getElementById('analyze-btn').disabled = true;
+});
+
+function showError(message) {
+    document.getElementById('error-area').textContent = message;
+    document.getElementById('error-area').style.display = 'block';
+    document.getElementById('fala-form').style.display = 'block';
+}
+</script>
+{% endblock %}
